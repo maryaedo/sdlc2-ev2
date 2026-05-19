@@ -1,0 +1,82 @@
+# ==============================================================================
+# PLANTILLA: Despliegue AWS ECR y EKS Blue/Green (CD Deploy)
+# ==============================================================================
+name: CD Deploy Template
+on:
+  workflow_call:
+    inputs:
+      app-color:
+        required: false
+        type: string
+        default: 'Blue'
+    secrets:
+      AWS_ACCESS_KEY_ID: {required: true}
+      AWS_SECRET_ACCESS_KEY: {required: true}
+      AWS_SESSION_TOKEN: {required: true}
+
+env:
+  ECR_REPOSITORY: techmarket-repo
+  IMAGE_TAG: ${{ github.sha }}
+  APP_COLOR: ${{ inputs.app-color }}
+  EKS_CLUSTER_NAME: duoc-eks-cluster-cli # Nombre del cluster según tu profesor
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-deploy-eks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 1. Autenticación segura a la nube AWS (EV1)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      # 2. Login temporal para ECR (EV1)
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      # 3. Construcción y Push de la imagen Docker (EV1)
+      - name: Build and Push Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build --build-arg BUILD_COLOR=${{ env.APP_COLOR }} -t techmarket-app:${{ env.IMAGE_TAG }} .
+          docker tag techmarket-app:${{ env.IMAGE_TAG }} $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      # 4. Configurar conexión con el Cluster de Kubernetes (Del archivo del profe)
+      - name: Configurar Kubectl para EKS
+        uses: aws-actions/eks-set-context@v4
+        with:
+          cluster-name: ${{ env.EKS_CLUSTER_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 5. Ejecutar la Estrategia Blue/Green (Adaptado a tu imagen)
+      - name: 🟦 Ejecutar Blue/Green (kubectl patch)
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          DEPLOYMENT_GREEN_NAME="techmarket-app-green"
+          SERVICE_NAME="techmarket-bg-service"
+          
+          echo "1. Actualizando la imagen del entorno GREEN (Inactivo)..."
+          # Comando para actualizar la imagen del deployment con la que acabamos de subir a ECR
+          kubectl set image deployment/$DEPLOYMENT_GREEN_NAME techmarket-app=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          
+          echo "2. Esperando a que los contenedores GREEN estén listos..."
+          kubectl rollout status deployment/$DEPLOYMENT_GREEN_NAME --timeout=300s
+          echo "✅ Rollout de GREEN completado."
+          
+          echo "3. Ventana de Prueba/Observación (30 segundos)..."
+          sleep 30
+          
+          echo "4. Ejecutando el Switch de tráfico: BLUE -> GREEN..."
+          # Aquí redirigimos el tráfico al nuevo entorno
+          kubectl patch service $SERVICE_NAME -p '{"spec": {"selector": {"version": "green"}}}'
+          echo "✅ Switch de tráfico completado."
