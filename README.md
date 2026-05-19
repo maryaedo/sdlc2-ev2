@@ -1,0 +1,1 @@
+TechMarket está lanzando un nuevo microservicio denominado Orders, encargado de procesar pedidos en línea. El equipo de desarrollo trabaja bajo metodologías ágiles y necesita definir e implementar una estrategia de despliegue continua que asegure alta disponibilidad, mínimo impacto en usuarios, ycapacidad de rollback rápido.
