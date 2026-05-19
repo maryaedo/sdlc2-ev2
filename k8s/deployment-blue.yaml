@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: techmarket-app
-        image: 987720950945.dkr.ecr.us-east-1.amazonaws.com/techmarket-repo:latest # Reemplazar con tu URI de ECR si varía
+        image: techmarket-app:latest
         ports:
         - containerPort: 3000
         env:
