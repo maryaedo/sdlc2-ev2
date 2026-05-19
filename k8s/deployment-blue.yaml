@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmarket-app-blue
+  labels:
+    app: techmarket-orders
+    version: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techmarket-orders
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: techmarket-orders
+        version: blue
+    spec:
+      containers:
+      - name: techmarket-app
+        image: 987720950945.dkr.ecr.us-east-1.amazonaws.com/techmarket-repo:latest # Reemplazar con tu URI de ECR si varía
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: APP_COLOR
+          value: "Blue-Environment"

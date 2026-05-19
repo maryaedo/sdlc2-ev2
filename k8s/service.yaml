@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: techmarket-bg-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: techmarket-orders
+    version: blue # El pipeline cambiará esto dinámicamente a 'green' con el comando kubectl patch

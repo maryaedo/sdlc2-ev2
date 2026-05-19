@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmarket-app-green
+  labels:
+    app: techmarket-orders
+    version: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techmarket-orders
+      version: green
+  template:
+    metadata:
+      labels:
+        app: techmarket-orders
+        version: green
+    spec:
+      containers:
+      - name: techmarket-app
+        image: 987720950945.dkr.ecr.us-east-1.amazonaws.com/techmarket-repo:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: APP_COLOR
+          value: "Green-Environment"
