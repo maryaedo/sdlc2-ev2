@@ -78,3 +78,16 @@ jobs:
           # Aquí redirigimos el tráfico al nuevo entorno
           kubectl patch service $SERVICE_NAME -p '{"spec": {"selector": {"version": "green"}}}'
           echo "✅ Switch de tráfico completado."
+
+      # 6. ROLLBACK AUTOMÁTICO (¡Pégalo aquí debajo!)
+      - name: 🔄 Rollback Automático
+        if: failure()
+        run: |
+          DEPLOYMENT_GREEN_NAME="techmarket-app-green"
+          SERVICE_NAME="techmarket-bg-service"
+          echo "❌ Fallo detectado. Ejecutando rollback..."
+          # Revierte el deployment GREEN a la versión anterior
+          kubectl rollout undo deployment/$DEPLOYMENT_GREEN_NAME
+          echo "🔄 Restaurando tráfico hacia BLUE..."
+          kubectl patch service $SERVICE_NAME -p '{"spec": {"selector": {"version": "blue"}}}'
+          echo "✅ Rollback completado."
