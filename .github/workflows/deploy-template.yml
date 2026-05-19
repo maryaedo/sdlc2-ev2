@@ -52,10 +52,8 @@ jobs:
 
       # 4. Configurar conexión con el Cluster de Kubernetes (Del archivo del profe)
       - name: Configurar Kubectl para EKS
-        uses: aws-actions/eks-set-context@v4
-        with:
-          cluster-name: ${{ env.EKS_CLUSTER_NAME }}
-          aws-region: ${{ env.AWS_REGION }}
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
       # 5. Ejecutar la Estrategia Blue/Green (Adaptado a tu imagen)
       - name: 🟦 Ejecutar Blue/Green (kubectl patch)
