@@ -29,24 +29,3 @@ npm install
 
 # 3. Levantar las pruebas unitarias y de integración
 npm test
-
----
-
-### Paso 5: Guía de Preparación para la PPT y el Informe Final
-
-Una vez que completes la sincronización de archivos mediante los comandos de Git y subas todo a producción, tu equipo estará listo para afrontar el cierre académico del encargo. Distribuyan el contenido de la siguiente manera:
-
-#### Estructura Sugerida para el Informe Escrito
-1. **Introducción:** Contexto de negocio del microservicio "TechMarket Orders" y los objetivos ágiles de la organización.
-2. **Análisis Técnico Comparativo:** Sección de conceptos teóricos (All-in-once, Rolling Update, Canary, Blue-Green) junto con la tabla comparativa detallada de ventajas, desventajas, impacto en costos y velocidad de propagación del cambio.
-3. **Selección Justificada:** La justificación unificada (SLA del 99.9%, normativas de auditoría de datos transaccionales, microservicios contenerizados y soporte nativo en la nube).
-4. **Documentación de la Implementación Práctica:** Explicación de los archivos de flujo (`main.yml`, `deploy-template.yml`), anexando capturas de pantalla de la ejecución exitosa de GitHub Actions (los "checks" en verde) y la creación del repositorio en Amazon ECR.
-5. **Conclusiones:** Reflexión sobre cómo la automatización eleva la resiliencia operativa y reduce los tiempos de salida al mercado (*Time-to-Market*).
-
-#### Estructura Sugerida para la Presentación (PPT)
-* **Diapositiva 1:** Portada formal con logotipo institucional, identificación del caso de negocio ("TechMarket Orders") e integrantes del equipo de trabajo.
-* **Diapositiva 2:** Definición del Problema y Restricciones (Explicar los desafíos del SLA del 99.9% y los riesgos de corrupción de base de datos en pasarelas de pago).
-* **Diapositiva 3:** Cuadro Comparativo de Estrategias (Resumen visual de los enfoques teóricos analizados).
-* **Diapositiva 4:** Propuesta de Solución y Justificación (Por qué *Blue-Green Deployment* en AWS EKS es el estándar ideal para la protección transaccional).
-* **Diapositiva 5:** Arquitectura del Pipeline y Demostración (Diagrama del flujo automatizado desde el push en GitHub Actions, pasando por Jest y `npm audit`, hasta el push a ECR y la conmutación con `kubectl patch`).
-* **Diapositiva 6:** Resultados y Conclusiones (Resaltar la eliminación de ventanas de mantenimiento y el impacto directo en la agilidad organizacional).
