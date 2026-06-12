@@ -1,0 +1,26 @@
+# ... (Inicio idéntico a tu green.yml original)
+    spec:
+      containers:
+      - name: techmarket-app
+        image: techmarket-app:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: APP_COLOR
+          value: "Green-Environment"
+        
+        # ====== AGREGAR ESTO PARA SUSTENTAR EL INFORME (IL3.4) ======
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10

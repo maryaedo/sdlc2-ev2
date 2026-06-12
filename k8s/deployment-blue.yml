@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmarket-app-blue
+  labels:
+    app: techmarket-orders
+    version: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techmarket-orders
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: techmarket-orders
+        version: blue
+    spec:
+      containers:
+      - name: techmarket-app
+        image: techmarket-app:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: APP_COLOR
+          value: "Blue-Environment"

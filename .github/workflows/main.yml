@@ -1,0 +1,32 @@
+# ==============================================================================
+# EVALUACIÓN 3: Orquestador Principal - Generación de Evidencias en Verde
+# ==============================================================================
+name: Orquestador Principal TechMarket
+on:
+  push:
+    branches: [main, master] 
+  workflow_dispatch: 
+
+jobs:
+  # 1. Llama a la plantilla de Construcción (Node.js)
+  call-build:
+    uses: ./.github/workflows/build-template.yml
+    with:
+      node-version: '20'
+      
+  # 2. Llama a la plantilla de Pruebas (Jest / npm audit)
+  call-test:
+    needs: call-build
+    uses: ./.github/workflows/test-template.yml
+    with:
+      node-version: '20'
+      app-color: 'Pipeline-Validacion'
+
+  # 3. Llama a la plantilla de Despliegue con Escenario de Contingencia Controlado
+  call-deploy:
+    needs: call-test
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      # Enviamos la bandera para forzar de manera controlada la etapa de remediación
+      app-color: 'Fallo-Simulado-Evidencia' 
+    secrets: inherit
