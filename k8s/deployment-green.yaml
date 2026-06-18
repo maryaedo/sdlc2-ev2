@@ -1,4 +1,21 @@
-# ... (Inicio idéntico a tu green.yml original)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techmarket-app-green
+  labels:
+    app: techmarket-orders
+    version: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: techmarket-orders
+      version: green
+  template:
+    metadata:
+      labels:
+        app: techmarket-orders
+        version: green
     spec:
       containers:
       - name: techmarket-app
