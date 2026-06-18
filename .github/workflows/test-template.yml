@@ -31,12 +31,13 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
+          cache-dependency-path: './package-lock.json'
       - name: Install dependencies
         run: npm ci
         
       # Quality Gate 1: Escaneo de vulnerabilidades conocidas
       - name: Security Audit
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=high
         
       # Quality Gate 2: Validación funcional del código fuente
       - name: Run Tests

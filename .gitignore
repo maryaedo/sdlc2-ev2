@@ -11,3 +11,7 @@ yarn-error.log*
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Archivos locales de Docker (si compilan o prueban en sus máquinas)
+.docker/
+docker-compose.override.yml

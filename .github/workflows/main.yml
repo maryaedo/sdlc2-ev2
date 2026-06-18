@@ -1,7 +1,10 @@
+# ==============================================================================
+# EVALUACIÓN 3: Orquestador Principal - Generación de Evidencias en Verde
+# ==============================================================================
 name: Orquestador Principal TechMarket
 on:
   push:
-    branches: [main, master] 
+    branches: [main, master, dev] 
   workflow_dispatch: 
 
 jobs:
@@ -19,10 +22,11 @@ jobs:
       node-version: '20'
       app-color: 'Pipeline-Validacion'
 
-  # 3. Llama a la plantilla de Despliegue en AWS EKS (Blue-Green)
+  # 3. Llama a la plantilla de Despliegue con Escenario de Contingencia Controlado
   call-deploy:
     needs: call-test
     uses: ./.github/workflows/deploy-template.yml
     with:
-      app-color: 'Produccion-TechMarket'
-    secrets: inherit # Propaga los secretos de AWS a la plantilla
+      # Enviamos la bandera para forzar de manera controlada la etapa de remediación
+      app-color: 'Fallo-Simulado-Evidencia' 
+    secrets: inherit

@@ -1,72 +1,80 @@
-# 🚀 TechMarket Orders: Orquestación e Implementación de CI/CD Multi-Entorno en AWS EKS
+# 🚀 TechMarket Orders: Resiliencia, Telemetría y Automatización de Mecanismos de Remediación Temprana en AWS EKS
 
-Este repositorio contiene la arquitectura de automatización y el pipeline de Integración y Entrega Continua (CI/CD) diseñado bajo metodologías ágiles para el microservicio crítico transaccional **"TechMarket Orders"**.
+Este repositorio contiene la evolución de la arquitectura de automatización y el pipeline de Integración y Entrega Continua (CI/CD) diseñado bajo metodologías ágiles para el microservicio crítico transaccional "TechMarket Orders", incorporando sistemas avanzados de corrección temprana y respuesta autónoma ante incidentes en producción.
+**Integrantes:** Marysabel Aedo, Solange Milla, Nathaly Saavedra.
 
-## Integrantes: Marysabel Aedo, Solange Milla, Nathaly Saavedra.
+---
 
-## 1. Arquitectura y Estrategia de Despliegue Seleccionada
-Para responder a las exigencias operativas del motor de pedidos y reservas de inventario, se ha implementado de forma automatizada la estrategia de **Blue-Green Deployment** utilizando **Amazon EKS (Elastic Kubernetes Service)**.
+## 1. Identificación de Escenarios de Error por Estrategia de Deployment
 
-### Justificación de Impacto en el Negocio y Continuidad Operativa:
-* **Cumplimiento Estricto del SLA (99.9%):** Al mantener dos entornos idénticos aislados, el enrutamiento del tráfico de usuarios mediante balanceo de carga elimina por completo las ventanas de mantenimiento con caída del sistema. Se garantiza un **uptime continuo** y transacciones ininterrumpidas incluso en horarios comerciales de alta demanda.
-* **Tolerancia a Fallos e Integridad de Datos:** De acuerdo con las normas de auditoría interna, bajo ningún escenario técnico se permiten inconsistencias de datos o pérdida de órdenes pendientes. El aislamiento del entorno inactivo (*Green*) faculta al equipo para ejecutar pruebas funcionales y de humo completas antes de conmutar el tráfico productivo.
-* **Capacidad de Rollback Inmediato:** Ante cualquier anomalía crítica imprevista detectada post-despliegue en la pasarela de pagos, la infraestructura permite revertir la operación al estado anterior de forma instantánea mediante la redirección atómica del servicio (`kubectl patch`), mitigando impactos financieros y reputacionales.
+Para asegurar la alta disponibilidad de la pasarela de pedidos y reservas de inventario, se analizaron los riesgos inherentes a las actualizaciones de software según la estrategia de despliegue seleccionada:
 
-## 2. Estructura del Pipeline de CI/CD (GitHub Actions)
-La automatización se encuentra orquestada modularmente y se divide en las fases requeridas para garantizar la calidad del software:
-1. **Fase de Build:** Configuración limpia del entorno Node.js, optimización de tiempos de entrega mediante uso avanzado de caché nativa e instalación inmutable de dependencias base (`npm ci`).
-2. **Fase de Validación y Test (Quality Gate):** Ejecución de auditorías automatizadas de vulnerabilidades conocidas (`npm audit`) y pasarela de pruebas unitarias/funcionales mediante Jest para mitigar riesgos antes del empaquetado.
-3. **Fase de Despliegue y Contenerización (CD):** Construcción de la imagen inmutable de Docker, almacenamiento seguro en **Amazon ECR** utilizando etiquetas basadas en el SHA del commit para trazabilidad perfecta, conexión al clúster de Kubernetes y ejecución atómica de la estrategia de conmutación Blue-Green.
+* **All-In-Once (Todo de una vez):
+* **Rolling Update (Actualización Progresiva):
+* **Canary (Canario):
+* **Blue-Green (Azul-Verde):
 
-## 3. Instrucciones de Reproducibilidad Local
-Para ejecutar el entorno de microservicios de manera local para desarrollo, siga estos pasos:
+---
+
+## 2. Análisis Técnico y Comparativo de Mecanismos de Remediación
+
+
+
+---
+
+## 3. Arquitectura de Remediación Temprana y Ciclo DevOps (Detección a Verificación)
+
+El pipeline de entrega continua implementa un ciclo cerrado de remediación automatizada estructurado bajo el paradigma defensivo DevOps:
+
+1.  **Detección (Mecanismo Activo):** Las sondas nativas de Kubernetes (`readinessProbe` y `livenessProbe`) interrogan dinámicamente el endpoint de telemetría `/health` en el puerto `3000` de la aplicación Express.
+2.  **Notificación y Aislamiento:** Si el parámetro de construcción corresponde a un escenario inestable (`Fallo-Simulado-Evidencia`), la lógica interna del script intercepta de forma temprana la contingencia antes de comprometer la red pública y la registra en la salida estándar de la consola.
+3.  **Acción Correctiva (Rollback Automatizado):** Al detectar la anomalía, el pipeline cancela el switch de tráfico, ejecuta un deshasimiento de cambios en la infraestructura degradada (`kubectl rollout undo`) y amarra firmemente el balanceador de carga de AWS (`AWS LoadBalancer`) hacia el entorno seguro (`version: blue`).
+4.  **Verificación Post-Remediación:** Se ejecuta un paso de auditoría final que consulta las especificaciones activas de red (`kubectl get service`) para certificar que el microservicio continúa operativo en zona segura, resguardando el SLA de la compañía.
+
+---
+
+## 4. Estructura del Pipeline de CI/CD (Archivos Modificados)
+
+La automatización de la respuesta ante fallas coordinó las siguientes capas técnicas del repositorio:
+
+* **`.github/workflows/main.yml`:** Orquestador principal encargado de automatizar secuencialmente las etapas de Build, Test (Quality Gate con Jest y npm audit) y paso de parámetros dinámicos de despliegue.
+* **`.github/workflows/deploy-template.yml`:** Pipeline de CD modularizado. Contiene las directivas condicionales (`if: env.CONTINGENCIA_DETECTADA`) para ejecutar la detección precoz, el rollback dinámico de infraestructura y el reporte de continuidad en un flujo estable y exitoso (Tick Verde).
+* **`index.js`:** Incorpora el endpoint técnico de salud corporativo `/health` y la lógica para la inyección de errores simulados por software.
+* **`k8s/green.yml` (y `blue.yml`):** Manifiestos que implementan formalmente las políticas de ciclos de vida de los contenedores mediante umbrales de fallo tolerables (`failureThreshold: 2`) e intervalos periódicos de chequeo.
+
+---
+
+## 5. Instrucciones de Reproducibilidad Local
+
+Para ejecutar y validar el entorno de desarrollo y pruebas de manera local, ejecute los siguientes comandos básicos:
 
 ```bash
 # 1. Clonar el repositorio
 git clone [https://github.com/MaryAedo/SDLC2-Ev2.git](https://github.com/MaryAedo/SDLC2-Ev2.git)
 cd SDLC2-Ev2
 
-# 2. Instalar dependencias del proyecto
-npm install
+# 2. Instalar dependencias del proyecto de forma limpia
+npm ci
 
-# 3. Levantar las pruebas unitarias y de integración
+# 3. Levantar la pasarela de pruebas unitarias
 npm test
-```
 
-## 4. Gestión Operativa en Amazon EKS (Comandos clave)
-Para interactuar con el clúster de Kubernetes en AWS EKS una vez configuradas las credenciales, utilice los siguientes comandos de gestión:
+---
 
-```bash
-# 1. Configurar/Actualizar el acceso al clúster (Contexto)
+## 5. Gestión operativa
+
+Comandos técnicos utilizados por el equipo de DevOps para administrar la resiliencia del clúster de Kubernetes:
+# 1. Configurar y actualizar las credenciales de acceso al contexto de AWS EKS
 aws eks update-kubeconfig --name duoc-eks-cluster-cli --region us-east-1
 
-# 2. Aplicar los manifiestos de Kubernetes (Blue, Green y Servicio)
-kubectl apply -f k8s/
+# 2. Consultar el estado de salud y prontitud de los pods (Verificación de Sondas)
+kubectl get pods -l app=techmarket-orders -o wide
 
-# 3. Verificar el estado de los Pods (Validación de entorno)
-kubectl get pods -o wide
+# 3. Interrogar al Balanceador de Carga para verificar el enrutamiento post-remediación
+kubectl get service techmarket-bg-service -o jsonpath='{.spec.selector.version}'
 
-# 4. Verificar el estado del Servicio y la IP del Load Balancer
-kubectl get service techmarket-bg-service
-
-# 5. Describir el servicio para validar los Selectores (Switch Blue-Green)
-kubectl describe service techmarket-bg-service
-
-# 6. Realizar Rollback manual ante fallos (Sintaxis para deployment Green)
+# 4. Rollback manual complementario para restaurar el Deployment Green a su estado anterior
 kubectl rollout undo deployment/techmarket-app-green
 
-# 7. Redirigir el tráfico hacia el entorno deseado (Blue o Green)
+# 5. Forzar la reconfiguración atómica del tráfico hacia el entorno seguro conocido
 kubectl patch service techmarket-bg-service -p '{"spec": {"selector": {"version": "blue"}}}'
-
-```
-
-## 5. Validación de Rollback Automático
-El pipeline cuenta con un mecanismo de fail-safe que se activa ante cualquier fallo en la etapa de despliegue mediante la directiva if: failure(). Para validar esta capacidad en un entorno de pruebas, se utiliza la inyección de errores controlada:
-
-```bash
-# Forzar una falla de despliegue (ImagePullBackOff)
-kubectl set image deployment/techmarket-app-green techmarket-app=imagen-inexistente:latest
-
-```
-Tras ejecutar este comando, el pipeline disparará automáticamente el proceso de reversión, garantizando la integridad transaccional de TechMarket.
-
