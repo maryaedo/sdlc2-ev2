@@ -15,10 +15,10 @@ on:
       AWS_SESSION_TOKEN: {required: true}
 
 env:
-  ECR_REPOSITORY: techmarket-repo
+  ECR_REPOSITORY: techmarket-app
   IMAGE_TAG: ${{ github.sha }}
   APP_COLOR: ${{ inputs.app-color }}
-  EKS_CLUSTER_NAME: duoc-eks-cluster-cli 
+  EKS_CLUSTER_NAME: techmarket-cluster
   AWS_REGION: us-east-1
   # SOLUCION PARA EL EDITOR: Declaramos la variable global con su estado inicial por defecto
   CONTINGENCIA_DETECTADA: 'false'
