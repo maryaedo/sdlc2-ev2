@@ -55,6 +55,11 @@ jobs:
           aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
       # ETAPA 1: DESPLIEGUE EN ENTORNO INACTIVO
+      - name: Aplicar configuraciones en AWS EKS
+        run: |
+          echo "Sincronizando archivos YAML de Kubernetes con el clúster..."
+          kubectl apply -f k8s/
+          
       - name: ETAPA DE DESPLIEGUE Actualizar Imagen Entorno GREEN
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
